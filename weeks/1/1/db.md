@@ -49,9 +49,60 @@
 - 아래에 직접 SQL을 입력해주세요.
 - 그리고 이 파일에 pr을 날려주세요.
 ```sql
-DROP DATABASE IF EXISTS mega_shop;
-CRETA DATABASE mega_shop;
-USE mega_shop;
+show TABLES;
+SELECT * FROM TABLES;
+
+# 테이블을 모두 마이그레이션으로 만들어서 클론 테이블을 하나 테스트 겸 만들어 보았습니다.
+CREATE TABLE adminPage_markets_market_clone(  
+	id int primary key not null auto_INCREMENT,
+	name varchar(32) not null,
+	price int default 0);
+	
+insert into `adminPage_accounts_user` (loginId, loginPw) values ('sbsst', '1234');
+INSERT INTO `adminPage_accounts_user` (loginId, loginPw) VALUES ('sbs1', '1234');
+INSERT INTO `adminPage_accounts_user` (loginId, loginPw) VALUES ('sbs2', '1234');
+select * from `adminPage_accounts_user`;
+
+insert into `adminPage_markets_market` (`name`, `price`) values ('블라우스',20000);
+INSERT INTO `adminPage_markets_market` (`name`, `price`) VALUES ('원피스',30000);
+INSERT INTO `adminPage_markets_market` (`name`, `price`) VALUES ('헤링본코트',70000);
+INSERT INTO `adminPage_markets_market` (`name`, `price`) VALUES ('중청 데님',55000);
+SELECT * FROM `adminPage_markets_market`;
+
+# 인덱스 생성을 위해 추가 기준 마련. 상의 하의 등등
+alter table `adminPage_products` add `productType` varchar(10) not null default 'top';
+# 컬럼 위치 옮기기
+alter table `adminPage_products` modify column `productType` varchar(10) after `id`;
+alter table `adminPage_products` modify column `productType` varchar(10) not null default 'top';
+
+insert into `adminPage_products` (reg_date, update_date, sale_name, sale_price, hide_status, sold_out_status, market_id_id) 
+	values ('2021-05-15', '2021-06-30', '대박할인 블라우스', '15000', 0,0,1);
+insert into `adminPage_products` (reg_date, update_date, sale_name, sale_price, hide_status, sold_out_status, market_id_id) 
+	values ('2021-08-20', '2021-08-20', '대박할인 원피스', '20000', 0,0,2);
+insert into `adminPage_products` (reg_date, update_date, sale_name, sale_price, hide_status, sold_out_status, market_id_id) 
+	values ('2021-09-15', '2021-09-19', '대박할인 헤링본코트', '55000', 0,0,3);	
+INSERT INTO `adminPage_products` (productType, reg_date, update_date, sale_name, sale_price, hide_status, sold_out_status, market_id_id) 
+VALUES ('bottom', '2021-01-21', '2021-06-19', '대박할인 중청데님', '22000', 0,0,4);	
+
+SELECT * FROM `adminPage_products`;
+delete from `adminPage_products` where id=10;
+
+# 잘못 입력해서 수정
+update `adminPage_products` set reg_date='2021-05-15', update_date='2021-06-30' where id=1;
+update `adminPage_products` set market_id_id=2 where id=2;
+SELECT * FROM `adminPage_products`;
+
+# `adminPage_products`와 `adminPage_markets_market` 조인 조회
+select prod.sale_name, mark.name from `adminPage_products` as prod, `adminPage_markets_market` as mark where prod.market_id_id = mark.id;
+select prod.sale_name, mark.name from `adminPage_products` as prod inner join `adminPage_markets_market` as mark on prod.market_id_id = mark.id;
+
+#인덱스 생성
+create index productTypeIndex on `adminPage_products` (productType);
+SHOW INDEX FROM `adminPage_products`;
+#인덱스로 조회
+explain select * from `adminPage_products`; #인덱스 안탐
+explain select * from `adminPage_products` where productType='bottom'; #인덱스 탐
+
 
 ... 계속
 ```
