@@ -38,6 +38,7 @@
 
 ## 제출
 - 아래에 직접 SQL을 입력해주세요.
+- 그리고 이 파일에 pr을 날려주세요.
 ```sql
 DROP DATABASE IF EXISTS mega_shop;
 CRETA DATABASE mega_shop;
